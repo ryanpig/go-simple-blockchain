@@ -5,7 +5,6 @@ import (
   "log"
   "crypto/sha256"
   "net/http"
-  // "io"
   "encoding/hex"
   "encoding/json"
 
@@ -16,7 +15,7 @@ import (
   "bufio"
 )
 
-// global varialbs
+// global variable
 var blockchain []Block
 
 type Block struct {
@@ -35,14 +34,13 @@ type ProjData struct {
 
 // generate a new block to blockchain
 func generateBlock(lastBlock Block, newdata ProjData) Block {
-  //check current l 
   timestamp := time.Now().String()
   b := Block{lastBlock.BlockID + 1, timestamp, "", lastBlock.Hash, newdata}
   b.Hash = hashing(b)
   return b
 }
 
-// hashing data and returned a hash string
+// hash data and return a hash string
 func hashing(b Block) string {
   strData := b.Data.ProjName + b.Data.ProjDes + string(b.Data.ProjID)
   h := sha256.New()
@@ -63,7 +61,7 @@ func parseData(filename string) []ProjData {
   defer file.Close()
   fileScanner := bufio.NewScanner(file)
 
-  // using json.Unmarshal to decode each line and add it to Block slice
+  // use json.Unmarshal to decode each line and add it to Block slice
   for fileScanner.Scan() {
       log.Println(fileScanner.Text())
       line := fileScanner.Text()
@@ -144,7 +142,7 @@ func handlerAddBlock(w http.ResponseWriter, r *http.Request) {
   fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Add new block", "test")
 }
 
-// start a webserver
+// start a web server
 func startWebserver() error {
   // read port configuration from a file ".env"
   err := godotenv.Load()
@@ -153,7 +151,6 @@ func startWebserver() error {
   }
 
   mux := makeMuxRouter()
-  // var httpAddr string = "8080"
   httpAddr := os.Getenv("PORT")
   s := &http.Server{
     Addr:           ":" + httpAddr,
