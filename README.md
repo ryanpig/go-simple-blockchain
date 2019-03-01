@@ -9,7 +9,7 @@
 
 
 ## Goal
-- Inspired by [Reference](#reference), I decided to build a simple and small blockchain, that might add more features later on in GO.  
+- Inspired by [Reference](#reference), I decided to build a simple and small blockchain written in GO, that more features can be added later on.  
 
 ## Status
 - Create a small blockchain to record Github project history (Note: Now the blockchain is created from reading test file, I will switch it by using github API)
