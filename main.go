@@ -24,9 +24,11 @@ import (
 
 // Error record:
 // 1. forget make the naming of struct member capital
+// 2. slice doesn't increase length after `append` in the function, because it's already reached its capacity
+// 3. read json data from file. Remember the format is {"key1":"value1", "key2":"value2"...}
 
 type Block struct {
-  Index int
+  BlockID int
   Timestamp string
   Hash string
   PrevHash string
@@ -40,16 +42,11 @@ type ProjData struct {
 }
 
 // generate a new block to blockchain
-func generateBlock(blockchain []Block, newdata ProjData) bool {
+func generateBlock(lastBlock Block, newdata ProjData) Block {
   //check current l 
-  last_index := len(blockchain) - 1
-  b := blockchain[last_index]
   timestamp := time.Now().String()
-  blockchain = append(blockchain, Block{b.Index, timestamp, hashing(&newdata, timestamp), b.Hash, newdata})
-  log.Println("Added block, the length of blockchain:", len(blockchain), "cap:", cap(blockchain))
-  last_index = len(blockchain) - 1
-  spew.Dump(blockchain[last_index])
-  return true
+  b := Block{lastBlock.BlockID + 1, timestamp, hashing(&newdata, timestamp), lastBlock.Hash, newdata}
+  return b
 }
 
 // hashing data and returned a hash string
@@ -60,6 +57,7 @@ func hashing(data *ProjData, timestamp string) string {
   return hashed
 }
 
+// read project data from file 
 func parseData(filename string) []ProjData {
   resultData := make([]ProjData, 0)
 
@@ -77,42 +75,33 @@ func parseData(filename string) []ProjData {
       res := ProjData{}
       json.Unmarshal([]byte(line), &res)
       resultData = append(resultData, res)
-      // Debuging
-      // log.Println("parsing result...")
-      // spew.Dump(res)
   }
-
   return resultData
 }
 
 func main() {
-  log.Println("start blockchain application")
-  // create genesis block
-  data := ProjData{"cpp_mt", "multithreading project in c++", 1}
-  t := time.Now().String()
-  genesisBlock := Block{1, t, hashing(&data, t),"" , data}
-  spew.Dump(genesisBlock)
+  log.Println("---Start blockchain application---")
 
   // create blockchain
   blockchain := make([]Block, 0)
+
+  // create genesis block
+  data := ProjData{"genesis", "This is genesis block", 0}
+  t := time.Now().String()
+  genesisBlock := Block{1, t, hashing(&data, t),"" , data}
+  spew.Dump(genesisBlock)
   blockchain = append(blockchain, genesisBlock)
 
-  // add new block
-  data2 := ProjData{"goserver", "build a go webserver", 2}
-  if generateBlock(blockchain, data2) {
-    log.Println("success of generation of new block")
-  } else {
-    log.Println("failure of generation of new block")
-  }
-
-  // add more blocks from the file
+  // add blocks from the file
   p := parseData("testcase.txt")
-  for _ , d := range p {
-    if generateBlock(blockchain, d) {
-      log.Println("success of generation of new block")
-    } else {
-      log.Println("failure of generation of new block")
-    }
+  for _ , data_tmp := range p {
+    lastBlock := blockchain[len(blockchain)-1]
+    b := generateBlock(lastBlock, data_tmp)
+    blockchain = append(blockchain, b)
+    // debuging
+    log.Println("Added block, the length of blockchain:", len(blockchain), "cap:", cap(blockchain))
+    last_index := len(blockchain) - 1
+    spew.Dump(blockchain[last_index])
   }
 }
 
