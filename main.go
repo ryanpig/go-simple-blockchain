@@ -16,19 +16,6 @@ import (
   "bufio"
 )
 
-// Task division
-// - Create a new blockchain by using slices of blocks 
-// - Generate new block w/ SHA-256 hash 
-// - Build a webserver providing REST API that allows user to view blocks and add new block client browser.
-
-// TODO:
-// - Solve conflict blockchains by choosing longer length
-
-// Error record:
-// 1. forget make the naming of struct member capital
-// 2. slice doesn't increase length after `append` in the function, because it's already reached its capacity
-// 3. read json data from file. Remember the format is {"key1":"value1", "key2":"value2"...}
-
 // global varialbs
 var blockchain []Block
 
