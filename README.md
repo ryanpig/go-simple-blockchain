@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ryanpig/go-simple-blockchain.svg?branch=master)](https://travis-ci.org/ryanpig/go-simple-blockchain)
+
 ## Table of content
 - [Table of content](#table-of-content)
 - [Goal](#goal)
