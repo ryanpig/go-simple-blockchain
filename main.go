@@ -5,7 +5,7 @@ import (
   "log"
   "crypto/sha256"
   "net/http"
-  // "io"
+  "io"
   "encoding/hex"
   "encoding/json"
 
@@ -28,6 +28,9 @@ import (
 // 1. forget make the naming of struct member capital
 // 2. slice doesn't increase length after `append` in the function, because it's already reached its capacity
 // 3. read json data from file. Remember the format is {"key1":"value1", "key2":"value2"...}
+
+// global varialbs
+var blockchain []Block
 
 type Block struct {
   BlockID int
@@ -106,16 +109,22 @@ func blockchain_initialization() []Block {
 }
 // handling GET request, return blockchain data
 func handlerGetBlockchain(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Return blockchain", "test")
+  fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Return blockchain", "test")
+  bytes, err := json.MarshalIndent(blockchain, "", "  ")
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError)
+    return
+  }
+  io.WriteString(w, string(bytes))
 }
 // handling POST request to add a new block 
 func handlerAddBlock(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Add new block", "test")
+  fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Add new block", "test")
 }
 
 // start a webserver
 func startWebserver() error {
-  // read port configuration from a file
+  // read port configuration from a file ".env"
   err := godotenv.Load()
   if err != nil {
         log.Fatal(err)
@@ -140,7 +149,7 @@ func startWebserver() error {
   return nil
 }
 
-// routing to different handlers
+// routing to different handlers (The router wrapper allows us to specify either GET or POST method) 
 func makeMuxRouter() http.Handler {
   muxRouter := mux.NewRouter()
   muxRouter.HandleFunc("/", handlerGetBlockchain).Methods("GET")
@@ -151,7 +160,7 @@ func makeMuxRouter() http.Handler {
 func main() {
   log.Println("---Start blockchain application---")
   // create blockchain
-  blockchain := blockchain_initialization()
+  blockchain = blockchain_initialization()
   spew.Dump(blockchain)
   // run server
   log.Fatal(startWebserver())
