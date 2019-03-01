@@ -1,16 +1,17 @@
 package main
 import (
+  "fmt"
   "time"
   "log"
   "crypto/sha256"
-  // "net/http"
+  "net/http"
   // "io"
   "encoding/hex"
   "encoding/json"
 
   "github.com/davecgh/go-spew/spew"
-  // "github.com/gorilla/mux"
-  // "github.com/joho/godotenv"
+  "github.com/gorilla/mux"
+  "github.com/joho/godotenv"
   "os"
   "bufio"
 )
@@ -103,12 +104,57 @@ func blockchain_initialization() []Block {
   }
   return blockchain
 }
+// handling GET request, return blockchain data
+func handlerGetBlockchain(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Return blockchain", "test")
+}
+// handling POST request to add a new block 
+func handlerAddBlock(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Add new block", "test")
+}
+
+// start a webserver
+func startWebserver() error {
+  // read port configuration from a file
+  err := godotenv.Load()
+  if err != nil {
+        log.Fatal(err)
+  }
+
+  mux := makeMuxRouter()
+  // var httpAddr string = "8080"
+  httpAddr := os.Getenv("PORT")
+  s := &http.Server{
+    Addr:           ":" + httpAddr,
+    Handler:        mux,
+    ReadTimeout:    10 * time.Second,
+    WriteTimeout:   10 * time.Second,
+    MaxHeaderBytes: 1 << 20,
+  }
+
+  log.Println("Start webserver listening port ", httpAddr)
+  if err := s.ListenAndServe(); err != nil {
+    return err
+  }
+
+  return nil
+}
+
+// routing to different handlers
+func makeMuxRouter() http.Handler {
+  muxRouter := mux.NewRouter()
+  muxRouter.HandleFunc("/", handlerGetBlockchain).Methods("GET")
+  muxRouter.HandleFunc("/", handlerAddBlock).Methods("POST")
+  return muxRouter
+}
 
 func main() {
   log.Println("---Start blockchain application---")
   // create blockchain
   blockchain := blockchain_initialization()
   spew.Dump(blockchain)
+  // run server
+  log.Fatal(startWebserver())
 }
 
 
