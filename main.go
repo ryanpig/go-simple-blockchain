@@ -19,8 +19,10 @@ import (
 // Task division
 // - Create a new blockchain by using slices of blocks 
 // - Generate new block w/ SHA-256 hash 
-// - Solve conflict blockchains by choosing longer length (TODO)
 // - Build a webserver providing REST API that allows user to view blocks and add new block client browser.
+
+// TODO:
+// - Solve conflict blockchains by choosing longer length
 
 // Error record:
 // 1. forget make the naming of struct member capital
@@ -59,6 +61,7 @@ func hashing(data *ProjData, timestamp string) string {
 
 // read project data from file 
 func parseData(filename string) []ProjData {
+  log.Println("Parsing data from the file:", filename)
   resultData := make([]ProjData, 0)
 
   file, err := os.Open(filename)
@@ -76,20 +79,16 @@ func parseData(filename string) []ProjData {
       json.Unmarshal([]byte(line), &res)
       resultData = append(resultData, res)
   }
+  log.Println("Parsing finished")
   return resultData
 }
 
-func main() {
-  log.Println("---Start blockchain application---")
-
-  // create blockchain
+func blockchain_initialization() []Block {
   blockchain := make([]Block, 0)
-
   // create genesis block
   data := ProjData{"genesis", "This is genesis block", 0}
   t := time.Now().String()
   genesisBlock := Block{1, t, hashing(&data, t),"" , data}
-  spew.Dump(genesisBlock)
   blockchain = append(blockchain, genesisBlock)
 
   // add blocks from the file
@@ -98,11 +97,15 @@ func main() {
     lastBlock := blockchain[len(blockchain)-1]
     b := generateBlock(lastBlock, data_tmp)
     blockchain = append(blockchain, b)
-    // debuging
-    log.Println("Added block, the length of blockchain:", len(blockchain), "cap:", cap(blockchain))
-    last_index := len(blockchain) - 1
-    spew.Dump(blockchain[last_index])
   }
+  return blockchain
+}
+
+func main() {
+  log.Println("---Start blockchain application---")
+  // create blockchain
+  blockchain := blockchain_initialization()
+  spew.Dump(blockchain)
 }
 
 
