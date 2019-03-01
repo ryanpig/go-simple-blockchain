@@ -5,7 +5,7 @@ import (
   "log"
   "crypto/sha256"
   "net/http"
-  "io"
+  // "io"
   "encoding/hex"
   "encoding/json"
 
@@ -107,15 +107,50 @@ func blockchain_initialization() []Block {
   }
   return blockchain
 }
+
+func makeSimpleHtml() string {
+
+  var sum string =` 
+  <style>
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+  }
+
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+  </style>
+  <table>
+  <tr>
+  <th>BlockID</th>
+  <th>Timestamp</th>
+  <th>Hash </th>
+  <th>PrevHash </th>
+  <th>Project Name </th>
+  <th>Project Description</th>
+  <th>Project ID </th>
+  </tr>
+  `
+  for _, b := range blockchain {
+    sum  += fmt.Sprintf("<tr> <td>%d</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%d</td> </tr>", b.BlockID, b.Timestamp, b.Hash, b.PrevHash, b.Data.ProjName, b.Data.ProjDes, b.Data.ProjID)
+  }
+
+  sum +=  "</table>"
+  return sum
+}
+
 // handling GET request, return blockchain data
 func handlerGetBlockchain(w http.ResponseWriter, r *http.Request) {
-  fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Return blockchain", "test")
-  bytes, err := json.MarshalIndent(blockchain, "", "  ")
-  if err != nil {
-    http.Error(w, err.Error(), http.StatusInternalServerError)
-    return
-  }
-  io.WriteString(w, string(bytes))
+  fmt.Fprintf(w, "<h1>%s</h1>", "Blockchain Info")
+  fmt.Fprintf(w, "%s", makeSimpleHtml())
 }
 // handling POST request to add a new block 
 func handlerAddBlock(w http.ResponseWriter, r *http.Request) {
