@@ -1,5 +1,5 @@
+sudo: required
 language: go
-
 go:
 - 1.x
 - "1.10"
@@ -7,6 +7,6 @@ go:
 - master
 
 script:
-  - ./dependencies_install.sh
+  - sudo ./dependencies_install.sh
   - go build main.go
   
