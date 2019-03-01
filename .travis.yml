@@ -1,0 +1,15 @@
+sudo: required
+language: go
+go:
+- 1.x
+- master
+
+before_script:
+- go get github.com/davecgh/go-spew/spew
+- go get github.com/gorilla/mux
+- go get github.com/joho/godotenv
+
+
+script:
+  - go build main.go
+  

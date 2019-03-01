@@ -5,7 +5,7 @@ import (
   "log"
   "crypto/sha256"
   "net/http"
-  "io"
+  // "io"
   "encoding/hex"
   "encoding/json"
 
@@ -15,19 +15,6 @@ import (
   "os"
   "bufio"
 )
-
-// Task division
-// - Create a new blockchain by using slices of blocks 
-// - Generate new block w/ SHA-256 hash 
-// - Build a webserver providing REST API that allows user to view blocks and add new block client browser.
-
-// TODO:
-// - Solve conflict blockchains by choosing longer length
-
-// Error record:
-// 1. forget make the naming of struct member capital
-// 2. slice doesn't increase length after `append` in the function, because it's already reached its capacity
-// 3. read json data from file. Remember the format is {"key1":"value1", "key2":"value2"...}
 
 // global varialbs
 var blockchain []Block
@@ -107,15 +94,50 @@ func blockchain_initialization() []Block {
   }
   return blockchain
 }
+
+func makeSimpleHtml() string {
+
+  var sum string =` 
+  <style>
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+  }
+
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+  </style>
+  <table>
+  <tr>
+  <th>BlockID</th>
+  <th>Timestamp</th>
+  <th>Hash </th>
+  <th>PrevHash </th>
+  <th>Project Name </th>
+  <th>Project Description</th>
+  <th>Project ID </th>
+  </tr>
+  `
+  for _, b := range blockchain {
+    sum  += fmt.Sprintf("<tr> <td>%d</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%d</td> </tr>", b.BlockID, b.Timestamp, b.Hash, b.PrevHash, b.Data.ProjName, b.Data.ProjDes, b.Data.ProjID)
+  }
+
+  sum +=  "</table>"
+  return sum
+}
+
 // handling GET request, return blockchain data
 func handlerGetBlockchain(w http.ResponseWriter, r *http.Request) {
-  fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", "Return blockchain", "test")
-  bytes, err := json.MarshalIndent(blockchain, "", "  ")
-  if err != nil {
-    http.Error(w, err.Error(), http.StatusInternalServerError)
-    return
-  }
-  io.WriteString(w, string(bytes))
+  fmt.Fprintf(w, "<h1>%s</h1>", "Blockchain Info")
+  fmt.Fprintf(w, "%s", makeSimpleHtml())
 }
 // handling POST request to add a new block 
 func handlerAddBlock(w http.ResponseWriter, r *http.Request) {
