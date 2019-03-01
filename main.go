@@ -1,23 +1,36 @@
 package main
 import (
-  "fmt"
-  "time"
-  "log"
+  "bufio"
+  "context"
   "crypto/sha256"
-  "net/http"
-  // "io"
   "encoding/hex"
   "encoding/json"
+  "fmt"
+  "log"
+  "net/http"
+  "os"
+  "time"
 
   "github.com/davecgh/go-spew/spew"
   "github.com/gorilla/mux"
   "github.com/joho/godotenv"
-  "os"
-  "bufio"
+  "golang.org/x/oauth2"
+  "github.com/shurcooL/githubv4"
 )
 
 // global varialbs
 var blockchain []Block
+var query struct {
+  Viewer struct {
+    Repositories struct {
+      Nodes []struct {
+        Name         string
+        Description  string
+        Id           string
+      }
+    } `graphql:"repositories(first: 100)"`
+  }
+}
 
 type Block struct {
   BlockID int
@@ -30,7 +43,7 @@ type Block struct {
 type ProjData struct {
   ProjName string
   ProjDes string
-  ProjID int
+  ProjID string 
 }
 
 // generate a new block to blockchain
@@ -44,7 +57,7 @@ func generateBlock(lastBlock Block, newdata ProjData) Block {
 
 // hashing data and returned a hash string
 func hashing(b Block) string {
-  strData := b.Data.ProjName + b.Data.ProjDes + string(b.Data.ProjID)
+  strData := b.Data.ProjName + b.Data.ProjDes + b.Data.ProjID
   h := sha256.New()
   h.Write([]byte(string(b.BlockID) + b.Timestamp + b.PrevHash + strData))
   hashed := hex.EncodeToString(h.Sum(nil))
@@ -75,18 +88,55 @@ func parseData(filename string) []ProjData {
   return resultData
 }
 
+func makeQuery() {
+  log.Println("making a query via Github API")
+  src := oauth2.StaticTokenSource(
+    &oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+  )
+  httpClient := oauth2.NewClient(context.Background(), src)
+  client := githubv4.NewClient(httpClient)
+  err := client.Query(context.Background(), &query, nil)
+  if err != nil {
+    // err 
+  }
+  // GraphQL
+  err = client.Query(context.Background(), &query, nil)
+  if err != nil {
+      fmt.Println("error", err)
+  }
+}
+
+func parseDataFromAPI() []ProjData {
+  log.Println("Parsing data from Github API v4")
+  resultData := make([]ProjData, 0)
+
+  // retrieve data from GraphQL
+  makeQuery()
+  spew.Dump(query)
+
+  // save query result to project data
+  for _, n := range query.Viewer.Repositories.Nodes {
+      res := ProjData{n.Name, n.Description, n.Id}
+      resultData = append(resultData, res)
+  }
+  log.Println("Parsing finished")
+  return resultData
+}
+
 // initialize blockchain from the file. (TODO: use github API) 
 func blockchain_initialization() []Block {
+
   blockchain := make([]Block, 0)
   // create genesis block
-  data := ProjData{"genesis", "This is genesis block", 0}
+  data := ProjData{"genesis", "This is genesis block", "0"}
   t := time.Now().String()
   genesisBlock := Block{1, t,"", "", data}
   genesisBlock.Hash = hashing(genesisBlock)
   blockchain = append(blockchain, genesisBlock)
 
   // add blocks from the file
-  p := parseData("testcase.txt")
+  // p := parseData("testcase.txt")
+  p := parseDataFromAPI()
   for _ , data_tmp := range p {
     lastBlock := blockchain[len(blockchain)-1]
     b := generateBlock(lastBlock, data_tmp)
@@ -127,7 +177,7 @@ func makeSimpleHtml() string {
   </tr>
   `
   for _, b := range blockchain {
-    sum  += fmt.Sprintf("<tr> <td>%d</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%d</td> </tr>", b.BlockID, b.Timestamp, b.Hash, b.PrevHash, b.Data.ProjName, b.Data.ProjDes, b.Data.ProjID)
+    sum  += fmt.Sprintf("<tr> <td>%d</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>", b.BlockID, b.Timestamp, b.Hash, b.PrevHash, b.Data.ProjName, b.Data.ProjDes, b.Data.ProjID)
   }
 
   sum +=  "</table>"
