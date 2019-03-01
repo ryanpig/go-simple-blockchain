@@ -11,7 +11,6 @@ import (
   "github.com/davecgh/go-spew/spew"
   // "github.com/gorilla/mux"
   // "github.com/joho/godotenv"
-  "strconv"
   "os"
   "bufio"
 )
@@ -47,14 +46,16 @@ type ProjData struct {
 func generateBlock(lastBlock Block, newdata ProjData) Block {
   //check current l 
   timestamp := time.Now().String()
-  b := Block{lastBlock.BlockID + 1, timestamp, hashing(&newdata, timestamp), lastBlock.Hash, newdata}
+  b := Block{lastBlock.BlockID + 1, timestamp, "", lastBlock.Hash, newdata}
+  b.Hash = hashing(b)
   return b
 }
 
 // hashing data and returned a hash string
-func hashing(data *ProjData, timestamp string) string {
+func hashing(b Block) string {
+  strData := b.Data.ProjName + b.Data.ProjDes + string(b.Data.ProjID)
   h := sha256.New()
-  h.Write([]byte(data.ProjName + data.ProjDes + strconv.Itoa(data.ProjID) + timestamp))
+  h.Write([]byte(string(b.BlockID) + b.Timestamp + b.PrevHash + strData))
   hashed := hex.EncodeToString(h.Sum(nil))
   return hashed
 }
@@ -83,12 +84,14 @@ func parseData(filename string) []ProjData {
   return resultData
 }
 
+// initialize blockchain from the file. (TODO: use github API) 
 func blockchain_initialization() []Block {
   blockchain := make([]Block, 0)
   // create genesis block
   data := ProjData{"genesis", "This is genesis block", 0}
   t := time.Now().String()
-  genesisBlock := Block{1, t, hashing(&data, t),"" , data}
+  genesisBlock := Block{1, t,"", "", data}
+  genesisBlock.Hash = hashing(genesisBlock)
   blockchain = append(blockchain, genesisBlock)
 
   // add blocks from the file
