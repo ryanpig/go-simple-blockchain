@@ -3,25 +3,25 @@
 ## Table of content
 - [Table of content](#table-of-content)
 - [Goal](#goal)
-- [Status](#status)
+- [Features](#features)
 - [DEMO](#demo)
 - [TODO](#todo)
 - [Dependencies installation](#dependencies-installation)
+- [Authentification](#authentification)
 - [Change listening port by modifying .env file](#change-listening-port-by-modifying-env-file)
 
 
 ## Goal
-- Inspired by [Reference](#reference), I decided to build a simple and small blockchain written in GO, that more features can be added later on.  
+- Inspired by [Reference](#reference), I decided to build a simple and small blockchain written in GO, which stores Github project information in this blockchain.   
 
-## Status
-- Create a small blockchain to record Github project history (Note: Now the blockchain is created from reading test file, I will switch it by using github API)
-- Generate new block w/ SHA-256 hash 
+## Features
+- The blockchain maintains project information from Github 
+- Use Github APIv.4(GraphQL) to retrieve project data
+- Use SHA-256 to hash project data
 - Build a webserver providing REST API that allows user to view blocks from client browser. 
 
 ## DEMO 
 - [AWS EC2](http://ec2-35-180-136-222.eu-west-3.compute.amazonaws.com:8080/#) 
-
-Note: It's just a small prototype now.
 
 ## TODO
 - Allow user to write a new block to blockchain from POST request
@@ -36,9 +36,17 @@ Note: It's just a small prototype now.
 go get github.com/davecgh/go-spew/spew
 go get github.com/gorilla/mux
 go get github.com/joho/godotenv
+go get -u github.com/shurcooL/githubv4
+go get -u golang.org/x/oauth2
 ```
+
+## Authentification
+- Create github token, and save envrionment variable `GITHUB_TOKEN=xxxxx` w/ the token
+
 ## Change listening port by modifying .env file
 - `vim .env` 
 
 ## Reference 
 - [Code your own blockchain in less than 200 lines of Go!](https://medium.com/@mycoralhealth/code-your-own-blockchain-in-less-than-200-lines-of-go-e296282bcffc)
+- [Github API graphQL explorer](https://developer.github.com/v4/explorer/)
+- [GIthub API v4 official](https://github.com/shurcooL/githubv4)
