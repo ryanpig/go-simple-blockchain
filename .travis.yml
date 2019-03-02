@@ -8,6 +8,8 @@ before_script:
 - go get github.com/davecgh/go-spew/spew
 - go get github.com/gorilla/mux
 - go get github.com/joho/godotenv
+- go get -u github.com/shurcooL/githubv4
+- go get -u golang.org/x/oauth2
 
 
 script:
