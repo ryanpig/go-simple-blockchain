@@ -8,7 +8,8 @@ LABEL maintainer="ryanpig <ryanpig@gmail.com>"
 WORKDIR $GOPATH/src/github.com/go-simple-blockchain
 
 # Copy everythin from currrent directory to the PWD inside the container
-COPY . . 
+# COPY /opt/go-simple-blockchain/*.* . 
+Run git clone https://github.com/ryanpig/go-simple-blockchain .
 
 # Download dependencies
 Run go get -u github.com/davecgh/go-spew/spew
@@ -19,6 +20,6 @@ Run go get -u golang.org/x/oauth2
 
 # exposes port 8080 to outside world
 EXPOSE 8080
-
+# set environment variale
 # Run the executable
 CMD ["go", "run", "main.go"]
