@@ -19,9 +19,10 @@
 - Use Github APIv.4(GraphQL) to retrieve project data
 - Use SHA-256 to hash project data
 - Build a webserver providing REST API that allows user to view blocks from client browser. 
+- Run in the docker container w/ environment varailbe  (
 
 ## DEMO 
-- [AWS EC2](http://ec2-35-180-136-222.eu-west-3.compute.amazonaws.com:8080/#) 
+- [AWS EC2](http://ec2-35-180-186-159.eu-west-3.compute.amazonaws.com:8080/#) 
 
 ## TODO
 - Allow user to write a new block to blockchain from POST request
