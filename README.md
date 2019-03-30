@@ -22,7 +22,7 @@
 - Run in the docker container w/ environment varailbe  (
 
 ## DEMO 
-- [AWS EC2](http://ec2-35-180-186-159.eu-west-3.compute.amazonaws.com:8080/#) 
+- [AWS EC2](http://52.47.189.34:8080/) 
 
 ## TODO
 - Allow user to write a new block to blockchain from POST request
