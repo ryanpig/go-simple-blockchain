@@ -18,8 +18,8 @@ Run go get -u github.com/joho/godotenv
 Run go get -u github.com/shurcooL/githubv4
 Run go get -u golang.org/x/oauth2
 
-# exposes port 8080 to outside world
-EXPOSE 8080
+# exposes port 7001 to outside world
+EXPOSE 7001
 # set environment variale
 # Run the executable
 CMD ["go", "run", "main.go"]
